@@ -86,6 +86,8 @@ function switchScreen(screenName) {
 // ========================================
 
 async function handleStartArena() {
+     // ✨ Preload audio (HARUS dipanggil saat user interaction!)
+    preloadChampionSound();
     const rawRoomId = elements.input.value.trim().toUpperCase();
     
     // Validasi format Room ID
@@ -519,24 +521,29 @@ function handleExitArena() {
 
 console.log('✅ App.js loaded successfully - Math Legends Arena Live ready');
 // ========================================
-// CONFETTI CELEBRATION
+// 🎊 CONFETTI + 🔊 SOUND CELEBRATION (FINAL VERSION)
 // ========================================
 
-// ========================================
-// CONFETTI CELEBRATION
-// ========================================
+// Preload audio (saat user klik tombol)
+let championAudio = null;
 
-// ========================================
-// CONFETTI + SOUND CELEBRATION
-// ========================================
+function preloadChampionSound() {
+    try {
+        championAudio = new Audio('assets/champion.mp3');
+        championAudio.volume = 0.7;
+        championAudio.preload = 'auto';
+        console.log('🔊 Champion audio preloaded:', championAudio.src);
+    } catch (e) {
+        console.error('❌ Preload error:', e);
+    }
+}
 
 function celebrateNewChampion(championName) {
     console.log(`🎊 celebrateNewChampion CALLED for: ${championName}`);
     
-    // ============ KONFETI ============
+    // ============ 🎊 KONFETI ============
     try {
         if (typeof confetti !== 'undefined') {
-            // Konfeti dari kiri
             confetti({
                 particleCount: 100,
                 angle: 60,
@@ -545,7 +552,6 @@ function celebrateNewChampion(championName) {
                 colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
             });
             
-            // Konfeti dari kanan
             confetti({
                 particleCount: 100,
                 angle: 120,
@@ -554,7 +560,6 @@ function celebrateNewChampion(championName) {
                 colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
             });
             
-            // Konfeti dari tengah (burst)
             setTimeout(() => {
                 confetti({
                     particleCount: 150,
@@ -565,28 +570,39 @@ function celebrateNewChampion(championName) {
             }, 400);
             
             console.log('✅ Confetti triggered!');
-        } else {
-            console.warn('⚠️ Confetti library not loaded!');
         }
     } catch (e) {
         console.error('❌ Confetti error:', e);
     }
     
-    // ============ SOUND ============
+    // ============ 🔊 SOUND ============
     playChampionSound();
     
-    // ============ KOMENTAR ============
+    // ============ 💬 KOMENTAR ============
     addComment(`🎊 SELAMAT! **${championName}** menjadi JUARA BARU! 🏆`, 'highlight');
 }
 
-// 🔊 Play Sound dari File MP3 Lokal
 function playChampionSound() {
+    console.log('🔊 playChampionSound CALLED');
+    
     try {
+        // Selalu buat audio baru biar tidak ada konflik
         const audio = new Audio('assets/champion.mp3');
         audio.volume = 0.7;
-        audio.play()
-            .then(() => console.log('🔊 Sound played successfully!'))
-            .catch(err => console.warn('⚠️ Sound blocked:', err.message));
+        
+        console.log('🔊 Audio source:', audio.src);
+        
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => {
+                    console.log('✅ Sound played successfully!');
+                })
+                .catch(err => {
+                    console.warn('⚠️ Sound blocked:', err.name, '-', err.message);
+                });
+        }
     } catch (e) {
         console.error('❌ Sound error:', e);
     }
