@@ -517,54 +517,92 @@ console.log('✅ App.js loaded successfully - Math Legends Arena Live ready');
 // CONFETTI CELEBRATION
 // ========================================
 
+// ========================================
+// CONFETTI CELEBRATION
+// ========================================
+
 function celebrateNewChampion(championName) {
-    // 🎊 Konfeti dari kiri
-    confetti({
-        particleCount: 100,
-        angle: 60,
-        spread: 70,
-        origin: { x: 0, y: 0.7 },
-        colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
-    });
-    
-    // 🎊 Konfeti dari kanan
-    confetti({
-        particleCount: 100,
-        angle: 120,
-        spread: 70,
-        origin: { x: 1, y: 0.7 },
-        colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
-    });
-    
-    // 🎊 Konfeti dari tengah (burst)
-    setTimeout(() => {
+    try {
+        // 🎊 Konfeti dari kiri
         confetti({
-            particleCount: 150,
-            spread: 100,
-            origin: { y: 0.5 },
-            colors: ['#ffd700', '#ffb347', '#00d4ff']
+            particleCount: 100,
+            angle: 60,
+            spread: 70,
+            origin: { x: 0, y: 0.7 },
+            colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
         });
-    }, 400);
+        
+        // 🎊 Konfeti dari kanan
+        confetti({
+            particleCount: 100,
+            angle: 120,
+            spread: 70,
+            origin: { x: 1, y: 0.7 },
+            colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
+        });
+        
+        // 🎊 Konfeti dari tengah (burst)
+        setTimeout(() => {
+            confetti({
+                particleCount: 150,
+                spread: 100,
+                origin: { y: 0.5 },
+                colors: ['#ffd700', '#ffb347', '#00d4ff']
+            });
+        }, 400);
+    } catch (e) {
+        console.warn('Confetti error:', e);
+    }
     
-    // 🔊 Sound Effect: Fanfare Kemenangan
+    // 🔊 Sound Effect (terpisah dari konfeti biar tidak crash bareng)
     playChampionSound();
     
-    // Komentar khusus
+    // 💬 Komentar khusus
     addComment(`🎊 SELAMAT! **${championName}** menjadi JUARA BARU! 🏆`, 'highlight');
     
     console.log(`🎉 Confetti + Sound for new champion: ${championName}`);
 }
 
-// 🔊 Fungsi Sound Effect
+// 🔊 Generate Sound Effect via Web Audio API (no file needed!)
 function playChampionSound() {
     try {
-        // URL suara fanfare kemenangan (online, gratis)
-        const audio = new Audio('https://cdn.pixabay.com/audio/2022/03/15/audio_8e3a8c2f7e.mp3');
-        audio.volume = 0.6; // Volume 60% (biar tidak kaget)
-        audio.play().catch(err => {
-            console.log('Sound blocked by browser:', err);
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) {
+            console.warn('Web Audio API not supported');
+            return;
+        }
+        
+        const ctx = new AudioContext();
+        
+        // Notasi fanfare kemenangan (DO MI SOL DO tinggi)
+        const notes = [
+            { freq: 523.25, time: 0, duration: 0.15 },   // C5
+            { freq: 659.25, time: 0.15, duration: 0.15 }, // E5
+            { freq: 783.99, time: 0.30, duration: 0.15 }, // G5
+            { freq: 1046.50, time: 0.45, duration: 0.40 } // C6 (panjang)
+        ];
+        
+        notes.forEach(note => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.type = 'triangle'; // Suara mirip terompet/fanfare
+            osc.frequency.value = note.freq;
+            
+            // Envelope: fade in/out biar smooth
+            gain.gain.setValueAtTime(0, ctx.currentTime + note.time);
+            gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + note.time + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + note.time + note.duration);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(ctx.currentTime + note.time);
+            osc.stop(ctx.currentTime + note.time + note.duration);
         });
-    } catch (err) {
-        console.log('Audio error:', err);
+        
+        console.log('🔊 Champion fanfare played!');
+    } catch (e) {
+        console.warn('Sound error:', e);
     }
 }
