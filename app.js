@@ -14,7 +14,7 @@ import {
   doc,
   getDoc
 } from './firebase-config.js';
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-firestore.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 // === GLOBAL VARIABLES ===
 let currentRoomId = null;
