@@ -518,7 +518,7 @@ console.log('✅ App.js loaded successfully - Math Legends Arena Live ready');
 // ========================================
 
 function celebrateNewChampion(championName) {
-    // Konfeti dari kiri
+    // 🎊 Konfeti dari kiri
     confetti({
         particleCount: 100,
         angle: 60,
@@ -527,7 +527,7 @@ function celebrateNewChampion(championName) {
         colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
     });
     
-    // Konfeti dari kanan
+    // 🎊 Konfeti dari kanan
     confetti({
         particleCount: 100,
         angle: 120,
@@ -536,7 +536,7 @@ function celebrateNewChampion(championName) {
         colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
     });
     
-    // Konfeti dari tengah (burst)
+    // 🎊 Konfeti dari tengah (burst)
     setTimeout(() => {
         confetti({
             particleCount: 150,
@@ -546,8 +546,25 @@ function celebrateNewChampion(championName) {
         });
     }, 400);
     
-    // Tambah komentar khusus
+    // 🔊 Sound Effect: Fanfare Kemenangan
+    playChampionSound();
+    
+    // Komentar khusus
     addComment(`🎊 SELAMAT! **${championName}** menjadi JUARA BARU! 🏆`, 'highlight');
     
-    console.log(`🎉 Confetti for new champion: ${championName}`);
+    console.log(`🎉 Confetti + Sound for new champion: ${championName}`);
+}
+
+// 🔊 Fungsi Sound Effect
+function playChampionSound() {
+    try {
+        // URL suara fanfare kemenangan (online, gratis)
+        const audio = new Audio('https://cdn.pixabay.com/audio/2022/03/15/audio_8e3a8c2f7e.mp3');
+        audio.volume = 0.6; // Volume 60% (biar tidak kaget)
+        audio.play().catch(err => {
+            console.log('Sound blocked by browser:', err);
+        });
+    } catch (err) {
+        console.log('Audio error:', err);
+    }
 }
