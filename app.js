@@ -51,7 +51,14 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleStartArena();
     });
-    
+    // ✨ TAMBAH INI: Test sound button
+    const btnTestSound = document.getElementById('btn-test-sound');
+    if (btnTestSound) {
+        btnTestSound.addEventListener('click', () => {
+            console.log('🧪 Test sound clicked');
+            playChampionSound();
+        });
+    }
     // Auto-format input (uppercase dan add dash)
     elements.input.addEventListener('input', (e) => {
         let val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -520,90 +527,56 @@ function handleExitArena() {
 }
 
 console.log('✅ App.js loaded successfully - Math Legends Arena Live ready');
-// ========================================
-// 🎊 CONFETTI + 🔊 SOUND CELEBRATION (FINAL VERSION)
-// ========================================
+// ════════════════════════════════════════════════
+// 🎊 CONFETTI + 🔊 SOUND - VERSI SUPER SIMPLE
+// ════════════════════════════════════════════════
 
-// Preload audio (saat user klik tombol)
-let championAudio = null;
-
-function preloadChampionSound() {
-    try {
-        championAudio = new Audio('assets/champion.mp3');
-        championAudio.volume = 0.7;
-        championAudio.preload = 'auto';
-        console.log('🔊 Champion audio preloaded:', championAudio.src);
-    } catch (e) {
-        console.error('❌ Preload error:', e);
-    }
+function playChampionSound() {
+    console.log('🔊 [playChampionSound] dipanggil');
+    
+    const audio = new Audio('assets/champion.mp3');
+    audio.volume = 0.8;
+    
+    console.log('🔊 [playChampionSound] source:', audio.src);
+    
+    audio.play()
+        .then(() => {
+            console.log('✅ [playChampionSound] BERHASIL bunyi!');
+        })
+        .catch(err => {
+            console.error('❌ [playChampionSound] GAGAL:', err.name, '-', err.message);
+        });
 }
 
 function celebrateNewChampion(championName) {
-    console.log(`🎊 celebrateNewChampion CALLED for: ${championName}`);
+    console.log(`🎊 [celebrateNewChampion] untuk: ${championName}`);
     
-    // ============ 🎊 KONFETI ============
+    // Konfeti
     try {
-        if (typeof confetti !== 'undefined') {
+        confetti({
+            particleCount: 100, angle: 60, spread: 70,
+            origin: { x: 0, y: 0.7 },
+            colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
+        });
+        confetti({
+            particleCount: 100, angle: 120, spread: 70,
+            origin: { x: 1, y: 0.7 },
+            colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
+        });
+        setTimeout(() => {
             confetti({
-                particleCount: 100,
-                angle: 60,
-                spread: 70,
-                origin: { x: 0, y: 0.7 },
-                colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
+                particleCount: 150, spread: 100,
+                origin: { y: 0.5 },
+                colors: ['#ffd700', '#ffb347', '#00d4ff']
             });
-            
-            confetti({
-                particleCount: 100,
-                angle: 120,
-                spread: 70,
-                origin: { x: 1, y: 0.7 },
-                colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
-            });
-            
-            setTimeout(() => {
-                confetti({
-                    particleCount: 150,
-                    spread: 100,
-                    origin: { y: 0.5 },
-                    colors: ['#ffd700', '#ffb347', '#00d4ff']
-                });
-            }, 400);
-            
-            console.log('✅ Confetti triggered!');
-        }
+        }, 400);
     } catch (e) {
-        console.error('❌ Confetti error:', e);
+        console.error('Konfeti error:', e);
     }
     
-    // ============ 🔊 SOUND ============
+    // Suara
     playChampionSound();
     
-    // ============ 💬 KOMENTAR ============
+    // Komentar
     addComment(`🎊 SELAMAT! **${championName}** menjadi JUARA BARU! 🏆`, 'highlight');
-}
-
-function playChampionSound() {
-    console.log('🔊 playChampionSound CALLED');
-    
-    try {
-        // Selalu buat audio baru biar tidak ada konflik
-        const audio = new Audio('assets/champion.mp3');
-        audio.volume = 0.7;
-        
-        console.log('🔊 Audio source:', audio.src);
-        
-        const playPromise = audio.play();
-        
-        if (playPromise !== undefined) {
-            playPromise
-                .then(() => {
-                    console.log('✅ Sound played successfully!');
-                })
-                .catch(err => {
-                    console.warn('⚠️ Sound blocked:', err.name, '-', err.message);
-                });
-        }
-    } catch (e) {
-        console.error('❌ Sound error:', e);
-    }
 }
