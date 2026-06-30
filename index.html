@@ -79,7 +79,6 @@
             <div class="header-right">
                 <p class="live-indicator">LIVE</p>
                 <p id="live-clock">00:00:00</p>
-                <button id="btn-test-sound" class="btn-back" style="border-color:#10b981;color:#10b981;">🔊 Test</button>
                 <button id="btn-back" class="btn-back">⬅ Keluar</button>
             </div>
         </header>
@@ -138,14 +137,9 @@
 
     <!-- Script JavaScript -->
     <script type="module" src="app.js?v=2026"></script>
-    <audio autoplay muted loop id="bg-music">
+    <!-- 🎵 Background Music -->
+<audio id="bg-music" loop>
     <source src="assets/music/bg-music.mp3" type="audio/mpeg">
 </audio>
-
-<script>
-    const music = document.getElementById("bg-music");
-    music.volume = 0.4;
-    music.muted = false;
-</script>
 </body>
 </html>

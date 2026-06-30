@@ -51,14 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elements.input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleStartArena();
     });
-    // ✨ TAMBAH INI: Test sound button
-    const btnTestSound = document.getElementById('btn-test-sound');
-    if (btnTestSound) {
-        btnTestSound.addEventListener('click', () => {
-            console.log('🧪 Test sound clicked');
-            playChampionSound();
-        });
-    }
+    
     // Auto-format input (uppercase dan add dash)
     elements.input.addEventListener('input', (e) => {
         let val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -119,7 +112,13 @@ async function handleStartArena() {
         
         // Setup listener real-time
         setupRealTimeListener();
-        
+
+        // ▶️ Putar background music saat masuk arena
+const bgMusic = document.getElementById('bg-music');
+if (bgMusic && bgMusic.paused) {
+    bgMusic.volume = 0.4;
+    bgMusic.play().catch(err => console.log("Autoplay diblokir:", err));
+}
         // Switch screen
         switchScreen('leaderboard');
         elements.displayRoom.textContent = currentRoomId;
@@ -520,6 +519,11 @@ function escapeHtml(text) {
 
 function handleExitArena() {
     if(confirm('Keluar dari arena? Anda akan kembali ke layar awal.')) {
+        const bgMusic = document.getElementById('bg-music');
+        if (bgMusic) {
+            bgMusic.pause();
+            bgMusic.currentTime = 0;
+        }
         switchScreen('input');
     }
 }
