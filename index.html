@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Legends Live Arena</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Russo+One&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- 🏠 LAYAR 1: INPUT ROOM ID                -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="screen-input" class="screen active">
+        <!-- Background Particles -->
+        <div class="bg-particles">
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+            <span class="particle"></span>
+        </div>
+
+        <div class="container-input">
+            
+            <!-- LOGO GAME MATH LEGENDS -->
+            <div class="logo-container">
+                <img src="assets/logo.png" alt="Math Legends Logo" class="logo-game">
+            </div>
+
+            <h2 class="subtitle">⚡ LIVE ARENA ⚡</h2>
+            
+            <p class="welcome-text">
+                Selamat datang di pusat siaran langsung turnamen Math Legends!<br>
+                Masukkan Room ID turnamen untuk melihat pertarungan pemain secara real-time.
+            </p>
+
+            <div class="input-group">
+                <label for="room-id-input">Masukkan Room ID Turnamen:</label>
+                <input 
+                    type="text" 
+                    id="room-id-input" 
+                    placeholder="Contoh: ABCD-1234"
+                    maxlength="9"
+                    autocomplete="off"
+                >
+                <div id="error-msg" class="error-message"></div>
+            </div>
+
+            <button id="btn-start" class="btn-primary">
+                📺 BUKA LIVE ARENA
+            </button>
+
+            <p class="info-text">
+                💡 Room ID didapat dari guru/panitia turnamen | Format: XXXX-XXXX
+            </p>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- 🏆 LAYAR 2: LIVE LEADERBOARD             -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="screen-leaderboard" class="screen">
+        
+        <!-- HEADER -->
+        <header class="arena-header">
+            <div class="header-left">
+                <h1>🏆 MATH LEGENDS</h1>
+                <p>Room: <span id="display-room-id" style="color:var(--cyan);font-weight:bold;">-</span></p>
+            </div>
+            <div class="header-right">
+                <p class="live-indicator">LIVE</p>
+                <p id="live-clock">00:00:00</p>
+                <button id="btn-back" class="btn-back">⬅ Keluar</button>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="arena-main">
+            
+            <!-- LEADERBOARD -->
+            <section class="leaderboard-section">
+                <h2 class="section-title">👑 LEADERBOARD TURNAMEN</h2>
+                
+                <!-- PODIUM TOP 3 -->
+                <div id="podium-container" class="podium-container" style="display:none;">
+                    <!-- Diisi oleh JavaScript -->
+                </div>
+
+                <!-- DAFTAR PEMAIN -->
+                <div id="leaderboard-list" class="leaderboard-list">
+                    <p class="loading-text">Menunggu data peserta masuk arena...</p>
+                </div>
+            </section>
+
+            <!-- STATISTIK & KOMENTATOR -->
+            <aside class="stats-section">
+                
+                <div class="stat-card">
+                    <h3>🔥 PEMAIN AKTIF</h3>
+                    <p id="stat-active-players" class="stat-big">0</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>⚡ SKOR TERTINGGI</h3>
+                    <p id="stat-highest-score" class="stat-big">0</p>
+                    <p id="stat-highest-name" class="stat-small">-</p>
+                </div>
+
+                <div class="stat-card">
+                    <h3>🏫 SEKOLAH TERLIBAT</h3>
+                    <p id="stat-total-schools" class="stat-big">0</p>
+                </div>
+
+                <div class="commentator-panel">
+                    <h3>🎤 COMMENTATOR FEED</h3>
+                    <div id="commentator-feed" class="commentator-feed">
+                        <div class="feed-item info">🎮 Menunggu aktivitas pemain...</div>
+                    </div>
+                </div>
+
+            </aside>
+
+        </main>
+    </div>
+
+    <!-- Script JavaScript -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
