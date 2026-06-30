@@ -5,7 +5,7 @@
 
 // Import konfigurasi dari firebase-config.js
 import { 
-  db, 
+  getFirestore, 
   collection, 
   query, 
   where, 
@@ -13,7 +13,16 @@ import {
   orderBy,
   doc,
   getDoc
-} from './firebase-config.js';
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+export { 
+  collection, 
+  query, 
+  where, 
+  onSnapshot, 
+  orderBy,
+  doc,
+  getDoc
+};
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 // === GLOBAL VARIABLES ===
