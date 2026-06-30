@@ -4,7 +4,16 @@
 // ═══════════════════════════════════════════════════════
 
 // Import konfigurasi dari firebase-config.js
-import { db, collection, query, where, onSnapshot, orderBy } from './firebase-config.js';
+import { 
+  db, 
+  collection, 
+  query, 
+  where, 
+  onSnapshot, 
+  orderBy,
+  doc,
+  getDoc
+} from './firebase-config.js';
 
 // === GLOBAL VARIABLES ===
 let currentRoomId = null;
@@ -137,7 +146,6 @@ async function handleStartArena() {
         // Cek dulu apakah room tersebut punya data di Firestore
         await verifyRoomExists();
         // Ambil data room untuk countdown
-import { doc, getDoc } from './firebase-config.js'; // kalau belum ada
 
 const roomRef = doc(db, "rooms", currentRoomId);
 const roomSnap = await getDoc(roomRef);
