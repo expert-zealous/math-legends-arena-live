@@ -115,12 +115,8 @@ async function handleStartArena() {
         setupRealTimeListener();
 
         // ▶️ Putar background music saat masuk arena
-const bgMusic = document.getElementById('bg-music');
-if (bgMusic && bgMusic.paused) {
-    bgMusic.volume = 0.4;
-    bgMusic.play().catch(err => console.log("Autoplay diblokir:", err));
-}
-// 🎵 Background music versi stabil desktop
+
+        // 🎵 Background music versi stabil desktop & mobile
 if (!bgMusic) {
     bgMusic = new Audio('assets/music/bg-music.mp3');
     bgMusic.loop = true;
@@ -130,6 +126,8 @@ if (!bgMusic) {
 bgMusic.play().catch(err => {
     console.log("BG Music diblokir:", err);
 });
+
+
         // Switch screen
         switchScreen('leaderboard');
         elements.displayRoom.textContent = currentRoomId;
