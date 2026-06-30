@@ -244,6 +244,10 @@ function handlePlayerUpdated(data, docId) {
         const newScore = data.score;
         const diff = newScore - oldScore;
         
+        // Cek siapa juara lama (sebelum update)
+        const oldChampionName = playersData[0]?.name;
+        const oldChampionScore = playersData[0]?.score || 0;
+        
         playersData[index] = { 
             ...playersData[index],
             ...data,
@@ -251,6 +255,15 @@ function handlePlayerUpdated(data, docId) {
             updated: true,
             previousScore: oldScore
         };
+        
+        // Sort ulang untuk cek apakah ada juara baru
+        const sortedCheck = [...playersData].sort((a, b) => b.score - a.score);
+        const newChampionName = sortedCheck[0]?.name;
+        
+        // 🎊 TRIGGER KONFETI jika ada JUARA BARU
+        if (oldChampionName && newChampionName !== oldChampionName && newScore > oldChampionScore) {
+            celebrateNewChampion(newChampionName);
+        }
         
         // Generate komentar dinamis
         generateCommentary(playersData[index], diff, index);
@@ -498,3 +511,41 @@ function handleExitArena() {
 }
 
 console.log('✅ App.js loaded successfully - Math Legends Arena Live ready');
+// ========================================
+// CONFETTI CELEBRATION
+// ========================================
+
+function celebrateNewChampion(championName) {
+    // Konfeti dari kiri
+    confetti({
+        particleCount: 100,
+        angle: 60,
+        spread: 70,
+        origin: { x: 0, y: 0.7 },
+        colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
+    });
+    
+    // Konfeti dari kanan
+    confetti({
+        particleCount: 100,
+        angle: 120,
+        spread: 70,
+        origin: { x: 1, y: 0.7 },
+        colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
+    });
+    
+    // Konfeti dari tengah (burst)
+    setTimeout(() => {
+        confetti({
+            particleCount: 150,
+            spread: 100,
+            origin: { y: 0.5 },
+            colors: ['#ffd700', '#ffb347', '#00d4ff']
+        });
+    }, 400);
+    
+    // Tambah komentar khusus
+    addComment(`🎊 SELAMAT! **${championName}** menjadi JUARA BARU! 🏆`, 'highlight');
+    
+    console.log(`🎉 Confetti for new champion: ${championName}`);
+}
