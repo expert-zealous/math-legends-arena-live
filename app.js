@@ -14,6 +14,7 @@ let previousScores = {}; // Untuk track perubahan skor dan trigger animasi
 let playerCount = 0;
 let currentChampion = null; // ✨ Track juara saat ini
 let bgMusic = null;
+let countdownInterval = null;
 
 // === DOM ELEMENTS ===
 const screens = {
@@ -65,6 +66,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Start clock immediately (tidak perlu tunggu arena)
     startLiveClock();
+    function startCountdown(expiresAt) {
+    const countdownEl = document.getElementById("countdown-timer");
+
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+    }
+
+    countdownInterval = setInterval(() => {
+        const now = new Date().getTime();
+        const end = expiresAt.toMillis ? expiresAt.toMillis() : new Date(expiresAt).getTime();
+        const distance = end - now;
+
+        if (distance <= 0) {
+            clearInterval(countdownInterval);
+            countdownEl.textContent = "⛔ TURNAMEN SELESAI";
+            return;
+        }
+
+        const hours = Math.floor(distance / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        countdownEl.textContent = `⏳ Sisa Waktu: ${hours.toString().padStart(2,"0")}:${minutes.toString().padStart(2,"0")}:${seconds.toString().padStart(2,"0")}`;
+    }, 1000);
+}
 });
 
 // ========================================
@@ -110,7 +136,18 @@ async function handleStartArena() {
     try {
         // Cek dulu apakah room tersebut punya data di Firestore
         await verifyRoomExists();
-        
+        // Ambil data room untuk countdown
+import { doc, getDoc } from './firebase-config.js'; // kalau belum ada
+
+const roomRef = doc(db, "rooms", currentRoomId);
+const roomSnap = await getDoc(roomRef);
+
+if (roomSnap.exists()) {
+    const roomData = roomSnap.data();
+    if (roomData.expiresAt) {
+        startCountdown(roomData.expiresAt);
+    }
+}
         // Setup listener real-time
         setupRealTimeListener();
 
