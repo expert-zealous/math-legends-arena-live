@@ -13,6 +13,7 @@ let playersData = [];
 let previousScores = {}; // Untuk track perubahan skor dan trigger animasi
 let playerCount = 0;
 let currentChampion = null; // ✨ Track juara saat ini
+let bgMusic = null;
 
 // === DOM ELEMENTS ===
 const screens = {
@@ -119,6 +120,16 @@ if (bgMusic && bgMusic.paused) {
     bgMusic.volume = 0.4;
     bgMusic.play().catch(err => console.log("Autoplay diblokir:", err));
 }
+// 🎵 Background music versi stabil desktop
+if (!bgMusic) {
+    bgMusic = new Audio('assets/music/bg-music.mp3');
+    bgMusic.loop = true;
+    bgMusic.volume = 0.4;
+}
+
+bgMusic.play().catch(err => {
+    console.log("BG Music diblokir:", err);
+});
         // Switch screen
         switchScreen('leaderboard');
         elements.displayRoom.textContent = currentRoomId;
@@ -519,7 +530,6 @@ function escapeHtml(text) {
 
 function handleExitArena() {
     if(confirm('Keluar dari arena? Anda akan kembali ke layar awal.')) {
-        const bgMusic = document.getElementById('bg-music');
         if (bgMusic) {
             bgMusic.pause();
             bgMusic.currentTime = 0;
