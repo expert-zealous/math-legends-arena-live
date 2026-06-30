@@ -93,8 +93,6 @@ function switchScreen(screenName) {
 // ========================================
 
 async function handleStartArena() {
-     // ✨ Preload audio (HARUS dipanggil saat user interaction!)
-    preloadChampionSound();
     const rawRoomId = elements.input.value.trim().toUpperCase();
     
     // Validasi format Room ID
