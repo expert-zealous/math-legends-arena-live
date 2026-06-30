@@ -319,17 +319,22 @@ function renderLeaderboard() {
     // Sort by score descending
     playersData.sort((a, b) => b.score - a.score);
     
-    // 🎊 CEK PERGANTIAN JUARA #1 (untuk trigger konfeti)
+    // 🎊 CEK PERGANTIAN JUARA #1
     const newChampion = playersData[0];
     
     if (newChampion) {
-        // Kalau juara berubah (dari pemain lain ATAU pertama kali ada juara)
-        if (currentChampion !== null && currentChampion !== newChampion.name) {
-            // Ada pergantian juara!
-            celebrateNewChampion(newChampion.name);
+        const newChampionName = newChampion.name;
+        
+        console.log(`🏆 Champion check: current=${currentChampion}, new=${newChampionName}`);
+        
+        // Hanya trigger konfeti kalau juara BERUBAH (bukan pertama kali)
+        if (currentChampion !== null && currentChampion !== newChampionName) {
+            console.log(`🎉 CHAMPION CHANGED! ${currentChampion} → ${newChampionName}`);
+            celebrateNewChampion(newChampionName);
         }
-        // Update juara tracker
-        currentChampion = newChampion.name;
+        
+        // Update tracker (selalu update biar bisa detect perubahan)
+        currentChampion = newChampionName;
     }
     
     // Render UI
@@ -521,88 +526,68 @@ console.log('✅ App.js loaded successfully - Math Legends Arena Live ready');
 // CONFETTI CELEBRATION
 // ========================================
 
+// ========================================
+// CONFETTI + SOUND CELEBRATION
+// ========================================
+
 function celebrateNewChampion(championName) {
+    console.log(`🎊 celebrateNewChampion CALLED for: ${championName}`);
+    
+    // ============ KONFETI ============
     try {
-        // 🎊 Konfeti dari kiri
-        confetti({
-            particleCount: 100,
-            angle: 60,
-            spread: 70,
-            origin: { x: 0, y: 0.7 },
-            colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
-        });
-        
-        // 🎊 Konfeti dari kanan
-        confetti({
-            particleCount: 100,
-            angle: 120,
-            spread: 70,
-            origin: { x: 1, y: 0.7 },
-            colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
-        });
-        
-        // 🎊 Konfeti dari tengah (burst)
-        setTimeout(() => {
+        if (typeof confetti !== 'undefined') {
+            // Konfeti dari kiri
             confetti({
-                particleCount: 150,
-                spread: 100,
-                origin: { y: 0.5 },
-                colors: ['#ffd700', '#ffb347', '#00d4ff']
+                particleCount: 100,
+                angle: 60,
+                spread: 70,
+                origin: { x: 0, y: 0.7 },
+                colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
             });
-        }, 400);
+            
+            // Konfeti dari kanan
+            confetti({
+                particleCount: 100,
+                angle: 120,
+                spread: 70,
+                origin: { x: 1, y: 0.7 },
+                colors: ['#00d4ff', '#ffb347', '#ffffff', '#ffd700']
+            });
+            
+            // Konfeti dari tengah (burst)
+            setTimeout(() => {
+                confetti({
+                    particleCount: 150,
+                    spread: 100,
+                    origin: { y: 0.5 },
+                    colors: ['#ffd700', '#ffb347', '#00d4ff']
+                });
+            }, 400);
+            
+            console.log('✅ Confetti triggered!');
+        } else {
+            console.warn('⚠️ Confetti library not loaded!');
+        }
     } catch (e) {
-        console.warn('Confetti error:', e);
+        console.error('❌ Confetti error:', e);
     }
     
-    // 🔊 Sound Effect (terpisah dari konfeti biar tidak crash bareng)
+    // ============ SOUND ============
     playChampionSound();
     
-    // 💬 Komentar khusus
+    // ============ KOMENTAR ============
     addComment(`🎊 SELAMAT! **${championName}** menjadi JUARA BARU! 🏆`, 'highlight');
-    
-    console.log(`🎉 Confetti + Sound for new champion: ${championName}`);
 }
 
-// 🔊 Generate Sound Effect via Web Audio API (no file needed!)
+// 🔊 Play Sound dari File MP3 Lokal
 function playChampionSound() {
     try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContext) {
-            console.warn('Web Audio API not supported');
-            return;
-        }
-        
-        const ctx = new AudioContext();
-        
-        // Notasi fanfare kemenangan (DO MI SOL DO tinggi)
-        const notes = [
-            { freq: 523.25, time: 0, duration: 0.15 },   // C5
-            { freq: 659.25, time: 0.15, duration: 0.15 }, // E5
-            { freq: 783.99, time: 0.30, duration: 0.15 }, // G5
-            { freq: 1046.50, time: 0.45, duration: 0.40 } // C6 (panjang)
-        ];
-        
-        notes.forEach(note => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            
-            osc.type = 'triangle'; // Suara mirip terompet/fanfare
-            osc.frequency.value = note.freq;
-            
-            // Envelope: fade in/out biar smooth
-            gain.gain.setValueAtTime(0, ctx.currentTime + note.time);
-            gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + note.time + 0.02);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + note.time + note.duration);
-            
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            
-            osc.start(ctx.currentTime + note.time);
-            osc.stop(ctx.currentTime + note.time + note.duration);
-        });
-        
-        console.log('🔊 Champion fanfare played!');
+        const audio = new Audio('assets/champion.mp3');
+        audio.volume = 0.7;
+        audio.play()
+            .then(() => console.log('🔊 Sound played successfully!'))
+            .catch(err => console.warn('⚠️ Sound blocked:', err.message));
     } catch (e) {
-        console.warn('Sound error:', e);
+        console.error('❌ Sound error:', e);
     }
 }
