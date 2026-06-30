@@ -4,8 +4,9 @@
 // ═══════════════════════════════════════════════════════
 
 // Import konfigurasi dari firebase-config.js
+i// Import dari firebase-config.js saja
 import { 
-  getFirestore, 
+  db,
   collection, 
   query, 
   where, 
@@ -13,17 +14,7 @@ import {
   orderBy,
   doc,
   getDoc
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-export { 
-  collection, 
-  query, 
-  where, 
-  onSnapshot, 
-  orderBy,
-  doc,
-  getDoc
-};
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+} from './firebase-config.js';
 
 // === GLOBAL VARIABLES ===
 let currentRoomId = null;
