@@ -12,6 +12,7 @@ let unsubscribeSnapshot = null;
 let playersData = [];
 let previousScores = {}; // Untuk track perubahan skor dan trigger animasi
 let playerCount = 0;
+let currentChampion = null; // ✨ Track juara saat ini
 
 // === DOM ELEMENTS ===
 const screens = {
@@ -244,10 +245,6 @@ function handlePlayerUpdated(data, docId) {
         const newScore = data.score;
         const diff = newScore - oldScore;
         
-        // Cek siapa juara lama (sebelum update)
-        const oldChampionName = playersData[0]?.name;
-        const oldChampionScore = playersData[0]?.score || 0;
-        
         playersData[index] = { 
             ...playersData[index],
             ...data,
@@ -255,15 +252,6 @@ function handlePlayerUpdated(data, docId) {
             updated: true,
             previousScore: oldScore
         };
-        
-        // Sort ulang untuk cek apakah ada juara baru
-        const sortedCheck = [...playersData].sort((a, b) => b.score - a.score);
-        const newChampionName = sortedCheck[0]?.name;
-        
-        // 🎊 TRIGGER KONFETI jika ada JUARA BARU
-        if (oldChampionName && newChampionName !== oldChampionName && newScore > oldChampionScore) {
-            celebrateNewChampion(newChampionName);
-        }
         
         // Generate komentar dinamis
         generateCommentary(playersData[index], diff, index);
@@ -328,10 +316,23 @@ function addComment(text, type = '') {
 // ========================================
 
 function renderLeaderboard() {
-    // Sort by score descending (seharusnya sudah terurut dari Firebase, tapi double check)
+    // Sort by score descending
     playersData.sort((a, b) => b.score - a.score);
     
-    // Reset UI elements
+    // 🎊 CEK PERGANTIAN JUARA #1 (untuk trigger konfeti)
+    const newChampion = playersData[0];
+    
+    if (newChampion) {
+        // Kalau juara berubah (dari pemain lain ATAU pertama kali ada juara)
+        if (currentChampion !== null && currentChampion !== newChampion.name) {
+            // Ada pergantian juara!
+            celebrateNewChampion(newChampion.name);
+        }
+        // Update juara tracker
+        currentChampion = newChampion.name;
+    }
+    
+    // Render UI
     renderPodium();
     renderList();
     
@@ -488,6 +489,7 @@ function resetUI() {
     elements.displayRoom.textContent = '-';
     playersData = [];
     previousScores = {};
+    currentChampion = null; // ✨ Reset juara saat keluar room
     elements.leaderboardList.innerHTML = '<p class="loading-text">Menunggu data peserta masuk arena...</p>';
     elements.podiumContainer.style.display = 'none';
     elements.commentFeed.innerHTML = '<div class="feed-item info">🎮 Menunggu aktivitas pemain...</div>';
