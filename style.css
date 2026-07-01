@@ -673,7 +673,7 @@ body {
    ================================ */
 .arena-header {
     display: grid;
-    grid-template-columns: 1fr auto 1fr; /* kiri | tengah | kanan */
+    grid-template-columns: 1fr 2fr 1fr; 
     align-items: center;
     padding: 10px 20px;
 }
@@ -767,4 +767,26 @@ body {
 @keyframes crownBounce {
     0%, 100% { transform: translateX(-50%) translateY(0); }
     50%      { transform: translateX(-50%) translateY(-6px); }
+}
+.section-title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+.trophy-icon {
+    font-size: 1.6rem;
+    filter: drop-shadow(0 0 6px gold);
+    animation: trophyGlow 2s infinite alternate;
+}
+
+@keyframes trophyGlow {
+    0%   { transform: scale(1); }
+    100% { transform: scale(1.15); }
+}
+
+/* Pusatkan LIVE + Jam agar sejajar dengan LEADERBOARD */
+.header-center {
+    transform: translateX(-180px);
 }
