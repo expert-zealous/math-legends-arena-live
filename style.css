@@ -790,3 +790,14 @@ body {
 .header-center {
     transform: translateX(-180px);
 }
+
+#countdown-box {
+    white-space: nowrap;   /* jangan wrap ke bawah */
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ff4444;
+}
+
+.header-right {
+    min-width: 340px;      /* beri ruang cukup untuk teks + tombol */
+}
