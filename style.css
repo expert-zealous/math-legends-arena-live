@@ -749,3 +749,22 @@ body {
     align-items: center;
     gap: 15px;
 }
+.podium-place {
+    position: relative;
+}
+
+.crown-icon {
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2rem;
+    filter: drop-shadow(0 0 8px gold);
+    animation: crownBounce 1.5s infinite ease-in-out;
+    z-index: 5;
+}
+
+@keyframes crownBounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%      { transform: translateX(-50%) translateY(-6px); }
+}

@@ -189,19 +189,23 @@ function renderLeaderboard() {
     { idx: 2, cls: 'third', medal: '🥉' }
 ];
 
-    positions.forEach(pos => {
-        if (!top3[pos.idx]) return;
-        const p = top3[pos.idx];
-        const div = document.createElement('div');
-        div.className = `podium-place ${pos.cls}`;
-        div.innerHTML = `
-            <span class="podium-medal">${pos.medal}</span>
-            <div class="podium-name">${p.name}</div>
-            <div class="podium-school">${p.school || ''}</div>
-            <div class="podium-score">${p.score}</div>
-        `;
-        elements.podiumContainer.appendChild(div);
-    });
+positions.forEach(pos => {
+    if (!top3[pos.idx]) return;
+    const p = top3[pos.idx];
+
+    const div = document.createElement('div');
+    div.className = `podium-place ${pos.cls}`;
+
+    div.innerHTML = `
+        ${pos.crown ? '<div class="crown-icon">👑</div>' : ''}
+        <span class="podium-medal">${pos.medal}</span>
+        <div class="podium-name">${p.name}</div>
+        <div class="podium-school">${p.school || ''}</div>
+        <div class="podium-score">${p.score}</div>
+    `;
+
+    elements.podiumContainer.appendChild(div);
+});
 
     // List rank 4+
     const rest = playersData.slice(3);
