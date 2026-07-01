@@ -722,3 +722,13 @@ body {
 .input-group input {
     text-align: center;
 }
+/* Paksa LIVE+Jam benar-benar center di layar */
+.arena-header {
+    position: relative;
+}
+
+.header-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}

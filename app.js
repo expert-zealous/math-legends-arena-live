@@ -184,10 +184,10 @@ function renderLeaderboard() {
     elements.podiumContainer.style.display = top3.length ? 'grid' : 'none';
 
     const positions = [
-        { idx: 1, cls: 'second', medal: '🥈' },
-        { idx: 0, cls: 'first', medal: '🥇' },
-        { idx: 2, cls: 'third', medal: '🥉' }
-    ];
+    { idx: 1, cls: 'second', medal: '🥈' },
+    { idx: 0, cls: 'first', medal: '🥇', crown: true },
+    { idx: 2, cls: 'third', medal: '🥉' }
+];
 
     positions.forEach(pos => {
         if (!top3[pos.idx]) return;
