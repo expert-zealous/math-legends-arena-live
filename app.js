@@ -270,7 +270,7 @@ function startCountdown(expiresAt) {
         const h = Math.floor(distance / 3600000);
         const m = Math.floor((distance % 3600000) / 60000);
         const s = Math.floor((distance % 60000) / 1000);
-        el.textContent = `⏳ ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
     }, 1000);
 }
 
