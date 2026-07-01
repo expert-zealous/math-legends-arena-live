@@ -709,3 +709,16 @@ body {
     font-weight: bold;
     color: #ff4444;
 }
+.input-group {
+    text-align: center;
+}
+
+.input-group label {
+    display: block;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.input-group input {
+    text-align: center;
+}
