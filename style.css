@@ -801,3 +801,149 @@ body {
 .header-right {
     min-width: 340px;      /* beri ruang cukup untuk teks + tombol */
 }
+
+/* ============================
+   FIX TEKS PLAYER LEBIH TEGAS
+   ============================ */
+.player-entry {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    margin-bottom: 8px;
+    transition: background 0.3s;
+}
+
+.player-entry:hover {
+    background: rgba(0, 212, 255, 0.08);
+}
+
+.player-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: none; /* matikan efek neon berlebihan */
+}
+
+.player-school {
+    font-size: 0.9rem;
+    color: #b0b0b0;
+    text-shadow: none;
+}
+
+.player-score-val {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #00d4ff;
+    text-shadow: 0 0 6px rgba(0, 212, 255, 0.5); /* neon halus saja */
+}
+
+.rank-num {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffb347;
+    min-width: 30px;
+    text-align: center;
+}
+
+/* ================================
+   RANK 4+ TANPA NEON (Bersih)
+   ================================ */
+.player-entry,
+.player-entry * {
+    text-shadow: none !important;
+    filter: none !important;
+    box-shadow: none !important;
+}
+
+.player-entry {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 18px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    margin-bottom: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.player-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.player-school {
+    font-size: 0.9rem;
+    color: #a8a8a8;
+}
+
+.player-score-val {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #00d4ff;
+}
+
+.rank-num {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffb347;
+    min-width: 30px;
+    text-align: center;
+}
+
+/* ============================
+   RANK 4+ FONT LEBIH BERSIH
+   ============================ */
+.player-entry {
+    display: grid;
+    grid-template-columns: 50px 1fr auto;
+    align-items: center;
+    gap: 20px;
+    padding: 14px 20px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    margin-bottom: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.player-entry * {
+    text-shadow: none !important;
+    filter: none !important;
+}
+
+.rank-num {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #ffb347;
+    text-align: center;
+}
+
+.player-name {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+}
+
+.player-school {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-size: 0.9rem;
+    color: #a8a8a8;
+    letter-spacing: 0.3px;
+    margin-top: 2px;
+}
+
+.player-score-val {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #00d4ff;
+    letter-spacing: 1px;
+    text-align: right;
+    min-width: 60px;
+}
