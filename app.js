@@ -65,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     startLiveClock();
+    setupTvModeControls();
 });
 
 // ========================================
@@ -309,4 +310,40 @@ function celebrateNewChampion(name) {
     audio.volume = 0.8;
     audio.play().catch(()=>{});
     addComment(`🎊 <strong>${name}</strong> menjadi JUARA BARU! 🏆`, 'highlight');
+}
+
+function setupTvModeControls(){
+  const btnTv = document.getElementById('btn-tv-mode');
+  const btnFs = document.getElementById('btn-fullscreen');
+
+  // Apply saved state
+  const saved = localStorage.getItem('tv-mode') === '1';
+  setTvMode(saved);
+
+  if (btnTv){
+    btnTv.addEventListener('click', () => {
+      const isOn = !document.body.classList.contains('tv-mode');
+      setTvMode(isOn);
+    });
+  }
+
+  if (btnFs){
+    btnFs.addEventListener('click', async () => {
+      try{
+        if (!document.fullscreenElement){
+          await document.documentElement.requestFullscreen();
+        } else {
+          await document.exitFullscreen();
+        }
+      } catch(e){
+        console.log('Fullscreen error:', e);
+      }
+    });
+  }
+
+  function setTvMode(on){
+    document.body.classList.toggle('tv-mode', on);
+    localStorage.setItem('tv-mode', on ? '1' : '0');
+    if (btnTv) btnTv.textContent = on ? '🧩 NORMAL' : '📺 TV MODE';
+  }
 }
