@@ -1114,8 +1114,8 @@ header > div:first-child {
 #live-clock {
     font-family: 'Courier New', 'Consolas', monospace !important;
     font-variant-numeric: tabular-nums !important;
-    font-weight: 900 !important;              /* ← lebih tebal */
-    font-size: 1.3rem !important;             /* ← lebih besar */
+    font-weight: 1000 !important;              /* ← lebih tebal */
+    font-size: 1.rem !important;             /* ← lebih besar */
     letter-spacing: 1px !important;
     display: inline-block !important;
     min-width: 130px !important;
@@ -1128,8 +1128,8 @@ header > div:first-child {
 #countdown-timer {
     font-family: 'Courier New', 'Consolas', monospace !important;
     font-variant-numeric: tabular-nums !important;
-    font-weight: 900 !important;              /* ← lebih tebal */
-    font-size: 1.3rem !important;             /* ← lebih besar */
+    font-weight: 1000 !important;              /* ← lebih tebal */
+    font-size: 1.7rem !important;             /* ← lebih besar */
     letter-spacing: 1px !important;
     color: #ff4444 !important;                /* ← merah biar tegas */
     display: inline-block !important;
