@@ -1108,3 +1108,25 @@ header > div:first-child {
     flex-shrink: 0 !important;
     white-space: nowrap !important;
 }
+/* ===== FIX JAM LIVE TIDAK BERUBAH LEBAR ===== */
+
+#live-clock {
+    font-family: 'Courier New', 'Consolas', monospace !important;
+    font-variant-numeric: tabular-nums !important;
+    display: inline-block !important;
+    min-width: 110px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+
+/* Bonus: countdown juga pakai monospace biar konsisten */
+#countdown-timer {
+    font-family: 'Courier New', 'Consolas', monospace !important;
+    font-variant-numeric: tabular-nums !important;
+    display: inline-block !important;
+    min-width: 90px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
