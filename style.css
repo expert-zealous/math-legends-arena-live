@@ -949,7 +949,7 @@ body {
 }
 
 .live-indicator {
-    font-size: 1rem;      /* ukuran tulisan */
+    font-size: 1.2rem;      /* ukuran tulisan */
     font-weight: bold;
     color: #ff4444;
     letter-spacing: 1.5px;
@@ -1058,4 +1058,20 @@ body.tv-mode .commentator-feed{
   .header-center #live-clock{
     white-space: nowrap !important;
   }
+}
+/* Fix titik merah LIVE + supaya sejajar */
+.live-indicator {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    white-space: nowrap !important;
+}
+
+.live-indicator::before,
+.live-indicator::after,
+.live-dot,
+.pulse-dot {
+    width: 8px !important;
+    height: 8px !important;
+    font-size: 0.6rem !important;
 }
