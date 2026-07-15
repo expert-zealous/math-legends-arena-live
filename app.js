@@ -317,7 +317,7 @@ function startCountdown(expiresAt) {
         const distance = expiresAt.toMillis() - Date.now();
         if (distance <= 0) {
             clearInterval(countdownInterval);
-            el.textContent = "⛔ TURNAMEN SELESAI";
+            el.textContent = "⛔ SELESAI";
             return;
         }
         const h = Math.floor(distance / 3600000);
