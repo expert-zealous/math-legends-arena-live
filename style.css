@@ -1138,3 +1138,7 @@ header > div:first-child {
     white-space: nowrap !important;
     flex-shrink: 0 !important;
 }
+/* Geser grup LIVE + jam + sisa waktu ke kanan */
+.live-indicator {
+    margin-left: 60px !important;
+}
