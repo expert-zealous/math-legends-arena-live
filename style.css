@@ -1075,3 +1075,36 @@ body.tv-mode .commentator-feed{
     height: 8px !important;
     font-size: 0.6rem !important;
 }
+/* ===== FIX HEADER LAYOUT ===== */
+
+/* 1. Kelompok kiri (logo + LIVE) - kunci di kiri */
+.header-left,
+header > div:first-child {
+    flex-shrink: 0 !important;
+}
+
+/* 2. LIVE indicator - kunci ukuran, tidak boleh melebar */
+.live-indicator {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    font-size: 0.9rem !important;
+}
+
+/* 3. Countdown/Sisa Waktu - lebar TETAP biar tidak dorong */
+#countdown-timer {
+    display: inline-block !important;
+    min-width: 90px !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+    font-size: 0.95rem !important;
+}
+
+/* 4. Wrapper "SISA WAKTU:" biar tidak melebar */
+.countdown-wrapper,
+.timer-section {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+}
