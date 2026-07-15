@@ -1110,22 +1110,30 @@ header > div:first-child {
 }
 /* ===== FIX JAM LIVE TIDAK BERUBAH LEBAR ===== */
 
+/* ===== JAM LIVE ===== */
 #live-clock {
     font-family: 'Courier New', 'Consolas', monospace !important;
     font-variant-numeric: tabular-nums !important;
+    font-weight: 900 !important;              /* ← lebih tebal */
+    font-size: 1.3rem !important;             /* ← lebih besar */
+    letter-spacing: 1px !important;
     display: inline-block !important;
-    min-width: 110px !important;
+    min-width: 130px !important;
     text-align: center !important;
     white-space: nowrap !important;
     flex-shrink: 0 !important;
 }
 
-/* Bonus: countdown juga pakai monospace biar konsisten */
+/* ===== SISA WAKTU / COUNTDOWN ===== */
 #countdown-timer {
     font-family: 'Courier New', 'Consolas', monospace !important;
     font-variant-numeric: tabular-nums !important;
+    font-weight: 900 !important;              /* ← lebih tebal */
+    font-size: 1.3rem !important;             /* ← lebih besar */
+    letter-spacing: 1px !important;
+    color: #ff4444 !important;                /* ← merah biar tegas */
     display: inline-block !important;
-    min-width: 90px !important;
+    min-width: 130px !important;
     text-align: center !important;
     white-space: nowrap !important;
     flex-shrink: 0 !important;
