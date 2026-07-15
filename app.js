@@ -124,20 +124,50 @@ async function handleStartArena() {
 // ========================================
 // VERIFY ROOM
 // ========================================
+// ========================================
+// VERIFY ROOM (baru: hanya cek format & room resmi)
+// ========================================
 async function verifyRoomExists() {
-    return new Promise((resolve, reject) => {
-        const q = query(
-            collection(db, 'leaderboard'),
-            where('roomId', '==', currentRoomId),
-            where('gameMode', '==', 'TURNAMEN'),
-            orderBy('score', 'desc')
-        );
-        const unsub = onSnapshot(q, snap => {
-            unsub();
-            if (snap.empty) reject(new Error("Room belum ada peserta"));
-            else resolve(true);
-        }, err => reject(err));
-    });
+    
+    // Cek format Room ID valid (4 karakter - 4 karakter)
+    if (!/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(currentRoomId)) {
+        throw new Error("Format Room ID salah. Contoh: ABCD-1234");
+    }
+    
+    // Coba cek apakah room ini ROOM RESMI (terdaftar di collection 'rooms')
+    try {
+        const roomRef = doc(db, "rooms", currentRoomId);
+        const roomSnap = await getDoc(roomRef);
+        
+        if (roomSnap.exists()) {
+            // Room resmi ada, cek statusnya
+            const data = roomSnap.data();
+            
+            if (data.status === "CLOSED") {
+                throw new Error("Turnamen ini sudah ditutup.");
+            }
+            
+            if (data.expiresAt && data.expiresAt.toMillis() < Date.now()) {
+                throw new Error("Turnamen ini sudah berakhir.");
+            }
+            
+            // Room resmi valid & aktif
+            return true;
+        }
+        
+        // Room tidak ada di collection 'rooms' = room spontan
+        // Tetap izinkan masuk (siswa bisa buat room sendiri)
+        return true;
+        
+    } catch (err) {
+        // Kalau error dari kita sendiri (throw di atas), lempar lagi
+        if (err.message.includes("Turnamen") || err.message.includes("Format")) {
+            throw err;
+        }
+        // Kalau error lain (misal network), tetap izinkan masuk
+        console.warn("Tidak bisa cek room, tapi tetap dibuka:", err);
+        return true;
+    }
 }
 
 // ========================================
@@ -178,6 +208,24 @@ function setupRealTimeListener() {
 function renderLeaderboard() {
 
     playersData.sort((a, b) => b.score - a.score);
+    
+    // ✅ Kalau belum ada peserta, tampilkan pesan menunggu
+    if (playersData.length === 0) {
+        elements.podiumContainer.style.display = 'none';
+        elements.leaderboardList.innerHTML = `
+            <div style="text-align:center; padding:40px 20px; color:#8DEBFF;">
+                <div style="font-size:60px; margin-bottom:16px;">⏳</div>
+                <div style="font-size:20px; font-weight:bold; margin-bottom:8px;">
+                    Menunggu Peserta...
+                </div>
+                <div style="font-size:14px; opacity:0.7;">
+                    Room ID: ${currentRoomId}<br>
+                    Bagikan kode ini ke peserta turnamen
+                </div>
+            </div>
+        `;
+        return;
+    }
 
     // Podium top 3
     const top3 = playersData.slice(0, 3);

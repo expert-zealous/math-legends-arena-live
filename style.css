@@ -1008,3 +1008,54 @@ body.tv-mode .stat-big{
 body.tv-mode .commentator-feed{
   max-height: 260px;
 }
+
+/* Header center: susun vertikal (LIVE/jam lalu countdown di bawah) */
+.header-center{
+  display: flex;
+  flex-direction: row;      /* LIVE + jam 1 baris */
+  align-items: center;
+  gap: 15px;
+  position: static !important;
+
+  transform: translateX(-180px); /* geser kiri seperti yang kamu mau */
+}
+
+/* countdown jangan kepanjangan */
+#countdown-box{
+  font-size: 0.9rem;
+  color: var(--red);
+  text-align: center;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px){
+  #countdown-box{ white-space: normal; }
+  .header-right{ flex-wrap: wrap; justify-content: center; }
+}
+/* Paksa LIVE + jam sejajar (1 baris) */
+@media (max-width: 900px){
+  .header-center{
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 12px !important;
+
+    /* kalau ada rule lama yang bikin melayang/stack */
+    position: static !important;
+    transform: none !important;
+
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+  }
+
+  .header-center p{
+    margin: 0 !important;
+  }
+
+  .header-center .live-indicator,
+  .header-center #live-clock{
+    white-space: nowrap !important;
+  }
+}
