@@ -80,33 +80,34 @@ body {
 }
 
 /* Logo Game Container */
-/* Logo Game Container */
 .logo-container {
     margin-bottom: 30px;
     animation: floatLogo 3s ease-in-out infinite;
-    
-    /* ✅ FIX BLUR: Paksa browser menggunakan GPU (Hardware Acceleration) */
-    will-change: transform;
+
+    /* === ANTI-BLUR SAAT ANIMASI === */
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    will-change: transform;
 }
 
 @keyframes floatLogo {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50%      { transform: translate3d(0, -10px, 0); }
 }
 
 .logo-game {
-    width: 320px; /* Ubah ke 400px jika ingin lebih besar */
-    max-width: 90vw;
+    width: 520px;                 /* ukuran desktop — ubah angka ini kalau mau lebih besar/kecil */
+    max-width: 92vw;              /* otomatis mengecil di HP, tidak meluber */
     height: auto;
-    
-    /* ✅ FIX BLUR: Kurangi radius shadow dari 30px jadi 15px agar lebih ringan */
-    filter: drop-shadow(0 0 15px rgba(0,212,255,0.4));
-    
-    /* ✅ FIX BLUR: Pertajam rendering gambar */
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
+    display: block;
+    margin: 0 auto;
+    filter: drop-shadow(0 0 30px rgba(0,212,255,0.3));
+
+    /* === ANTI-BLUR SAAT ANIMASI === */
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    will-change: transform;
 }
 
 .logo-title-text {
