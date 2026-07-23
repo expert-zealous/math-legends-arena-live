@@ -173,6 +173,9 @@ async function verifyRoomExists() {
 // ========================================
 // REAL-TIME LISTENER
 // ========================================
+// ========================================
+// REAL-TIME LISTENER
+// ========================================
 function setupRealTimeListener() {
 
     const q = query(
@@ -184,8 +187,22 @@ function setupRealTimeListener() {
 
     unsubscribeSnapshot = onSnapshot(q, snap => {
 
-        const newData = [];
-        snap.forEach(d => newData.push({ id: d.id, ...d.data() }));
+        // STEP 1: Ambil semua data mentah dari Firestore
+        const rawData = [];
+        snap.forEach(d => rawData.push({ id: d.id, ...d.data() }));
+
+        // STEP 2: Filter hanya score tertinggi per nama pemain
+        const bestScoreMap = new Map();
+        rawData.forEach(player => {
+            const existing = bestScoreMap.get(player.name);
+            if (!existing || player.score > existing.score) {
+                bestScoreMap.set(player.name, player);
+            }
+        });
+
+        // STEP 3: Ubah Map jadi Array & urutkan dari score tertinggi
+        const newData = Array.from(bestScoreMap.values())
+            .sort((a, b) => b.score - a.score);
 
         // Cek juara baru
         if (newData.length > 0) {
