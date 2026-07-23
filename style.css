@@ -80,9 +80,15 @@ body {
 }
 
 /* Logo Game Container */
+/* Logo Game Container */
 .logo-container {
     margin-bottom: 30px;
     animation: floatLogo 3s ease-in-out infinite;
+    
+    /* ✅ FIX BLUR: Paksa browser menggunakan GPU (Hardware Acceleration) */
+    will-change: transform;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 @keyframes floatLogo {
@@ -91,10 +97,16 @@ body {
 }
 
 .logo-game {
-    width: 500px;
+    width: 320px; /* Ubah ke 400px jika ingin lebih besar */
     max-width: 90vw;
     height: auto;
-    filter: drop-shadow(0 0 30px rgba(0,212,255,0.3));
+    
+    /* ✅ FIX BLUR: Kurangi radius shadow dari 30px jadi 15px agar lebih ringan */
+    filter: drop-shadow(0 0 15px rgba(0,212,255,0.4));
+    
+    /* ✅ FIX BLUR: Pertajam rendering gambar */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
 }
 
 .logo-title-text {
