@@ -203,65 +203,94 @@ async function verifyRoomExists() {
 }
 
 // ========================================
-// REAL-TIME LISTENER
-// ========================================
-// ========================================
-// REAL-TIME LISTENER
+// REAL-TIME LISTENER (FIXED & AMAN DARI INDEX ERROR)
 // ========================================
 function setupRealTimeListener() {
 
-    let q;
-
-    if (currentMode === 'NORMAL') {
-        // 🌐 RANKING GLOBAL: semua pemain mode NORMAL
-        q = query(
-            collection(db, 'leaderboard'),
-            where('gameMode', '==', 'NORMAL'),
-            orderBy('score', 'desc')
-        );
-    } else {
-        // 🏆 TURNAMEN: filter room
-        q = query(
-            collection(db, 'leaderboard'),
-            where('roomId', '==', currentRoomId),
-            where('gameMode', '==', 'TURNAMEN'),
-            orderBy('score', 'desc')
-        );
+    if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = null;
     }
+
+    // AMBIL DATA BERDASARKAN SKOR SAJA (TIDAK PERLU INDEX KOMPLEKS DI FIREBASE)
+    const q = query(
+        collection(db, 'leaderboard'),
+        orderBy('score', 'desc'),
+        limit(300) // Ambil 300 data teratas dari seluruh database
+    );
 
     unsubscribeSnapshot = onSnapshot(q, snap => {
 
         const rawData = [];
-        snap.forEach(d => rawData.push({ id: d.id, ...d.data() }));
 
-        // Deduplikasi: hanya score tertinggi per nama
-        const bestScoreMap = new Map();
-        rawData.forEach(player => {
-            const existing = bestScoreMap.get(player.name);
-            if (!existing || player.score > existing.score) {
-                bestScoreMap.set(player.name, player);
+        snap.forEach(d => {
+            const player = {
+                id: d.id,
+                ...d.data()
+            };
+
+            const gameMode = String(player.gameMode || '').toUpperCase().trim();
+
+            // === FILTER BERDASARKAN MODE DI JAVASCRIPT ===
+            if (currentMode === 'normal') {
+                // Jika mode normal, ambil semua yang gameMode-nya "NORMAL"
+                if (gameMode === 'NORMAL') {
+                    rawData.push(player);
+                }
+            } else {
+                // Jika mode turnamen, ambil yang gameMode "TURNAMEN" dan roomId cocok
+                if (gameMode === 'TURNAMEN' && player.roomId === currentRoomId) {
+                    rawData.push(player);
+                }
             }
         });
 
+        // --- DEDUPLIKASI: 1 NAMA = 1 SKOR TERTINGGI ---
+        const bestScoreMap = new Map();
+
+        rawData.forEach(player => {
+            const cleanName = String(player.name || '')
+                .trim()
+                .replace(/\s+/g, ' ');
+
+            if (!cleanName) return;
+
+            const numericScore = Number(player.score);
+            if (!Number.isFinite(numericScore)) return;
+
+            player.name = cleanName;
+            player.score = numericScore;
+
+            const nameKey = cleanName
+                .toLowerCase()
+                .replace(/[\u200B-\u200D\uFEFF]/g, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            const existing = bestScoreMap.get(nameKey);
+            if (!existing || player.score > existing.score) {
+                bestScoreMap.set(nameKey, player);
+            }
+        });
+
+        // Ubah Map ke Array & urutkan dari skor tertinggi
         const newData = Array.from(bestScoreMap.values())
             .sort((a, b) => b.score - a.score);
 
+        // Cek juara baru
         if (newData.length > 0) {
             const newChamp = newData[0].name;
             if (currentChampion !== null && currentChampion !== newChamp) {
                 celebrateNewChampion(newChamp);
             }
             currentChampion = newChamp;
+        } else {
+            currentChampion = null;
         }
 
         playersData = newData;
         renderLeaderboard();
         updateStatistics();
-
-    }, (error) => {
-        // ✅ Error handler: supaya error Firestore TIDAK diam saja
-        console.error("Firestore error:", error);
-        alert("Gagal memuat data leaderboard:\n" + error.message);
     });
 }
 
