@@ -237,13 +237,19 @@ function setupRealTimeListener() {
         snap.forEach(d => rawData.push({ id: d.id, ...d.data() }));
 
         // Deduplikasi: Hanya ambil skor tertinggi per nama pemain
-        const bestScoreMap = new Map();
-        rawData.forEach(player => {
-            const existing = bestScoreMap.get(player.name);
-            if (!existing || player.score > existing.score) {
-                bestScoreMap.set(player.name, player);
-            }
-        });
+        // Cari bagian ini di dalam setupRealTimeListener
+const bestScoreMap = new Map();
+rawData.forEach(player => {
+    // ✅ PERBAIKAN: Ubah nama menjadi huruf kecil untuk dijadikan "Kunci" unik
+    // .trim() digunakan untuk menghapus spasi tidak sengaja di depan/belakang nama
+    const searchKey = player.name.toLowerCase().trim(); 
+    
+    const existing = bestScoreMap.get(searchKey);
+    if (!existing || player.score > existing.score) {
+        // Jika belum ada atau score baru lebih tinggi, simpan ke Map
+        bestScoreMap.set(searchKey, player);
+    }
+});
 
         const newData = Array.from(bestScoreMap.values())
             .sort((a, b) => b.score - a.score);
