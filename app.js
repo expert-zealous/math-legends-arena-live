@@ -80,14 +80,48 @@ function switchScreen(name) {
 // START ARENA
 // ========================================
 async function handleStartArena() {
-
     const id = elements.input.value.trim().toUpperCase();
+
+    // ✅ Jika Room ID kosong → mode NORMAL (global)
+    if (!id) {
+        currentMode = 'NORMAL';
+        currentRoomId = null;
+        currentChampion = null;
+
+        try {
+            // Background music
+            if (!bgMusic) {
+                bgMusic = new Audio('assets/music/bg-music.mp3');
+                bgMusic.loop = true;
+                bgMusic.volume = 0.4;
+            }
+            bgMusic.play().catch(() => {});
+
+            // Sembunyikan countdown (mode normal tidak punya batas waktu)
+            const cdBox = document.getElementById('countdown-box');
+            if (cdBox) cdBox.style.display = 'none';
+
+            setupRealTimeListener();
+            switchScreen('leaderboard');
+            elements.displayRoom.textContent = '🌐 GLOBAL (NORMAL)';
+
+            addComment(`🌐 Membuka RANKING GLOBAL mode NORMAL`, 'info');
+            addComment(`👀 Menampilkan skor tertinggi seluruh pemain...`, 'info');
+
+        } catch (err) {
+            alert(err.message);
+        }
+        return; // Hentikan eksekusi, tidak perlu lanjut ke mode turnamen
+    }
+
+    // ✅ Jika Room ID diisi → mode TURNAMEN (seperti semula)
     if (!/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(id)) {
         alert("Format Room ID salah. Contoh: ABCD-1234");
         return;
     }
 
     currentRoomId = id;
+    currentMode = 'TURNAMEN';
 
     try {
         await verifyRoomExists();
@@ -98,6 +132,10 @@ async function handleStartArena() {
 
         if (roomSnap.exists() && roomSnap.data().expiresAt) {
             startCountdown(roomSnap.data().expiresAt);
+        } else {
+            // Jika room tidak punya expiresAt, sembunyikan countdown
+            const cdBox = document.getElementById('countdown-box');
+            if (cdBox) cdBox.style.display = 'none';
         }
 
         // Background music
@@ -106,10 +144,9 @@ async function handleStartArena() {
             bgMusic.loop = true;
             bgMusic.volume = 0.4;
         }
-        bgMusic.play().catch(()=>{});
+        bgMusic.play().catch(() => {});
 
         setupRealTimeListener();
-
         switchScreen('leaderboard');
         elements.displayRoom.textContent = currentRoomId;
 
@@ -177,21 +214,31 @@ async function verifyRoomExists() {
 // REAL-TIME LISTENER
 // ========================================
 function setupRealTimeListener() {
+    let q;
 
-    const q = query(
-        collection(db, 'leaderboard'),
-        where('roomId', '==', currentRoomId),
-        where('gameMode', '==', 'TURNAMEN'),
-        orderBy('score', 'desc')
-    );
+    if (currentMode === 'NORMAL') {
+        // 🌐 RANKING GLOBAL: semua pemain mode NORMAL
+        q = query(
+            collection(db, 'leaderboard'),
+            where('gameMode', '==', 'NORMAL'),
+            orderBy('score', 'desc'),
+            limit(100)
+        );
+    } else {
+        // 🏆 TURNAMEN: filter room + mode turnamen
+        q = query(
+            collection(db, 'leaderboard'),
+            where('roomId', '==', currentRoomId),
+            where('gameMode', '==', 'TURNAMEN'),
+            orderBy('score', 'desc')
+        );
+    }
 
     unsubscribeSnapshot = onSnapshot(q, snap => {
-
-        // STEP 1: Ambil semua data mentah dari Firestore
         const rawData = [];
         snap.forEach(d => rawData.push({ id: d.id, ...d.data() }));
 
-        // STEP 2: Filter hanya score tertinggi per nama pemain
+        // Deduplikasi nama (hanya score tertinggi)
         const bestScoreMap = new Map();
         rawData.forEach(player => {
             const existing = bestScoreMap.get(player.name);
@@ -200,11 +247,9 @@ function setupRealTimeListener() {
             }
         });
 
-        // STEP 3: Ubah Map jadi Array & urutkan dari score tertinggi
         const newData = Array.from(bestScoreMap.values())
             .sort((a, b) => b.score - a.score);
 
-        // Cek juara baru
         if (newData.length > 0) {
             const newChamp = newData[0].name;
             if (currentChampion !== null && currentChampion !== newChamp) {
