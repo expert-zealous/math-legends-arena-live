@@ -16,6 +16,7 @@ import {
 
 // === GLOBAL ===
 let currentRoomId = null;
+let currentMode = 'tournament';
 let unsubscribeSnapshot = null;
 let playersData = [];
 let currentChampion = null;
@@ -80,65 +81,59 @@ function switchScreen(name) {
 // START ARENA
 // ========================================
 async function handleStartArena() {
+
     const id = elements.input.value.trim().toUpperCase();
 
-    // ✅ Jika Room ID kosong → mode NORMAL (global)
-    if (!id) {
-        currentMode = 'NORMAL';
+    // ====== MODE NORMAL (input kosong) ======
+    if (id === '') {
+        currentMode = 'normal';
         currentRoomId = null;
-        currentChampion = null;
 
-        try {
-            // Background music
-            if (!bgMusic) {
-                bgMusic = new Audio('assets/music/bg-music.mp3');
-                bgMusic.loop = true;
-                bgMusic.volume = 0.4;
-            }
-            bgMusic.play().catch(() => {});
-
-            // Sembunyikan countdown (mode normal tidak punya batas waktu)
-            const cdBox = document.getElementById('countdown-box');
-            if (cdBox) cdBox.style.display = 'none';
-
-            setupRealTimeListener();
-            switchScreen('leaderboard');
-            elements.displayRoom.textContent = '🌐 GLOBAL (NORMAL)';
-
-            addComment(`🌐 Membuka RANKING GLOBAL mode NORMAL`, 'info');
-            addComment(`👀 Menampilkan skor tertinggi seluruh pemain...`, 'info');
-
-        } catch (err) {
-            alert(err.message);
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
         }
-        return; // Hentikan eksekusi, tidak perlu lanjut ke mode turnamen
+
+        const countdownBox = document.getElementById('countdown-box');
+        if (countdownBox) countdownBox.style.display = 'none';
+
+        if (!bgMusic) {
+            bgMusic = new Audio('assets/music/bg-music.mp3');
+            bgMusic.loop = true;
+            bgMusic.volume = 0.4;
+        }
+        bgMusic.play().catch(() => {});
+
+        setupRealTimeListener();
+        switchScreen('leaderboard');
+
+        elements.displayRoom.textContent = 'NORMAL';
+        addComment('📊 Leaderboard Mode Normal (Semua Pemain)', 'info');
+        return;
     }
 
-    // ✅ Jika Room ID diisi → mode TURNAMEN (seperti semula)
+    // ====== MODE TURNAMEN (input ada isi) ======
     if (!/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(id)) {
         alert("Format Room ID salah. Contoh: ABCD-1234");
         return;
     }
 
+    currentMode = 'tournament';
     currentRoomId = id;
-    currentMode = 'TURNAMEN';
 
     try {
         await verifyRoomExists();
 
-        // Ambil expiresAt untuk countdown
         const roomRef = doc(db, "rooms", currentRoomId);
         const roomSnap = await getDoc(roomRef);
 
         if (roomSnap.exists() && roomSnap.data().expiresAt) {
             startCountdown(roomSnap.data().expiresAt);
-        } else {
-            // Jika room tidak punya expiresAt, sembunyikan countdown
-            const cdBox = document.getElementById('countdown-box');
-            if (cdBox) cdBox.style.display = 'none';
         }
 
-        // Background music
+        const countdownBox = document.getElementById('countdown-box');
+        if (countdownBox) countdownBox.style.display = 'block';
+
         if (!bgMusic) {
             bgMusic = new Audio('assets/music/bg-music.mp3');
             bgMusic.loop = true;
@@ -214,18 +209,23 @@ async function verifyRoomExists() {
 // REAL-TIME LISTENER
 // ========================================
 function setupRealTimeListener() {
+
+    if (unsubscribeSnapshot) {
+        unsubscribeSnapshot();
+        unsubscribeSnapshot = null;
+    }
+
     let q;
 
-    if (currentMode === 'NORMAL') {
-        // 🌐 RANKING GLOBAL: semua pemain mode NORMAL
+    if (currentMode === 'normal') {
+        // Query SEMUA data tanpa filter room
         q = query(
             collection(db, 'leaderboard'),
-            where('gameMode', '==', 'NORMAL'),
             orderBy('score', 'desc'),
-            limit(100)
+            limit(200)
         );
     } else {
-        // 🏆 TURNAMEN: filter room + mode turnamen
+        // Query data per room
         q = query(
             collection(db, 'leaderboard'),
             where('roomId', '==', currentRoomId),
@@ -235,15 +235,36 @@ function setupRealTimeListener() {
     }
 
     unsubscribeSnapshot = onSnapshot(q, snap => {
-        const rawData = [];
-        snap.forEach(d => rawData.push({ id: d.id, ...d.data() }));
 
-        // Deduplikasi nama (hanya score tertinggi)
         const bestScoreMap = new Map();
-        rawData.forEach(player => {
-            const existing = bestScoreMap.get(player.name);
+
+        snap.forEach(d => {
+            const player = {
+                id: d.id,
+                ...d.data()
+            };
+
+            const cleanName = String(player.name || '')
+                .trim()
+                .replace(/\s+/g, ' ');
+
+            if (!cleanName) return;
+
+            const numericScore = Number(player.score);
+            if (!Number.isFinite(numericScore)) return;
+
+            player.name = cleanName;
+            player.score = numericScore;
+
+            const nameKey = cleanName
+                .toLowerCase()
+                .replace(/[\u200B-\u200D\uFEFF]/g, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            const existing = bestScoreMap.get(nameKey);
             if (!existing || player.score > existing.score) {
-                bestScoreMap.set(player.name, player);
+                bestScoreMap.set(nameKey, player);
             }
         });
 
@@ -256,6 +277,8 @@ function setupRealTimeListener() {
                 celebrateNewChampion(newChamp);
             }
             currentChampion = newChamp;
+        } else {
+            currentChampion = null;
         }
 
         playersData = newData;
@@ -406,6 +429,15 @@ function handleExitArena() {
     if (unsubscribeSnapshot) unsubscribeSnapshot();
     if (countdownInterval) clearInterval(countdownInterval);
     if (bgMusic) { bgMusic.pause(); bgMusic.currentTime = 0; }
+
+    // Reset countdown box
+    const countdownBox = document.getElementById('countdown-box');
+    if (countdownBox) countdownBox.style.display = 'block';
+
+    // Reset mode
+    currentMode = 'tournament';
+    currentChampion = null;
+
     switchScreen('input');
 }
 
