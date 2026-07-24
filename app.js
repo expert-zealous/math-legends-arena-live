@@ -210,22 +210,17 @@ async function verifyRoomExists() {
 // ========================================
 function setupRealTimeListener() {
 
-    if (unsubscribeSnapshot) {
-        unsubscribeSnapshot();
-        unsubscribeSnapshot = null;
-    }
-
     let q;
 
-    if (currentMode === 'normal') {
-        // Query SEMUA data tanpa filter room
+    if (currentMode === 'NORMAL') {
+        // 🌐 RANKING GLOBAL: semua pemain mode NORMAL
         q = query(
             collection(db, 'leaderboard'),
-            orderBy('score', 'desc'),
-            limit(200)
+            where('gameMode', '==', 'NORMAL'),
+            orderBy('score', 'desc')
         );
     } else {
-        // Query data per room
+        // 🏆 TURNAMEN: filter room
         q = query(
             collection(db, 'leaderboard'),
             where('roomId', '==', currentRoomId),
@@ -236,35 +231,15 @@ function setupRealTimeListener() {
 
     unsubscribeSnapshot = onSnapshot(q, snap => {
 
+        const rawData = [];
+        snap.forEach(d => rawData.push({ id: d.id, ...d.data() }));
+
+        // Deduplikasi: hanya score tertinggi per nama
         const bestScoreMap = new Map();
-
-        snap.forEach(d => {
-            const player = {
-                id: d.id,
-                ...d.data()
-            };
-
-            const cleanName = String(player.name || '')
-                .trim()
-                .replace(/\s+/g, ' ');
-
-            if (!cleanName) return;
-
-            const numericScore = Number(player.score);
-            if (!Number.isFinite(numericScore)) return;
-
-            player.name = cleanName;
-            player.score = numericScore;
-
-            const nameKey = cleanName
-                .toLowerCase()
-                .replace(/[\u200B-\u200D\uFEFF]/g, '')
-                .replace(/\s+/g, ' ')
-                .trim();
-
-            const existing = bestScoreMap.get(nameKey);
+        rawData.forEach(player => {
+            const existing = bestScoreMap.get(player.name);
             if (!existing || player.score > existing.score) {
-                bestScoreMap.set(nameKey, player);
+                bestScoreMap.set(player.name, player);
             }
         });
 
@@ -277,13 +252,16 @@ function setupRealTimeListener() {
                 celebrateNewChampion(newChamp);
             }
             currentChampion = newChamp;
-        } else {
-            currentChampion = null;
         }
 
         playersData = newData;
         renderLeaderboard();
         updateStatistics();
+
+    }, (error) => {
+        // ✅ Error handler: supaya error Firestore TIDAK diam saja
+        console.error("Firestore error:", error);
+        alert("Gagal memuat data leaderboard:\n" + error.message);
     });
 }
 
