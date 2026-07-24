@@ -252,7 +252,23 @@ rawData.forEach(player => {
 });
 
         const newData = Array.from(bestScoreMap.values())
-            .sort((a, b) => b.score - a.score);
+    .sort((a, b) => {
+        // Aturan 1: Skor lebih tinggi menang
+        if (b.score !== a.score) {
+            return b.score - a.score;
+        }
+
+        // Aturan 2 (Tiebreaker): Skor sama → yang lebih dulu mencapainya menang
+        const timeA = a.timestamp?.toMillis 
+            ? a.timestamp.toMillis() 
+            : (a.timestamp || Infinity);
+
+        const timeB = b.timestamp?.toMillis 
+            ? b.timestamp.toMillis() 
+            : (b.timestamp || Infinity);
+
+        return timeA - timeB;
+    });
 
         // Deteksi Juara Baru
         if (newData.length > 0) {
