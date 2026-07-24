@@ -81,67 +81,74 @@ function switchScreen(name) {
 // START ARENA
 // ========================================
 async function handleStartArena() {
-
     const id = elements.input.value.trim().toUpperCase();
 
-    // ====== MODE NORMAL (input kosong) ======
-    if (id === '') {
-        currentMode = 'normal';
+    // 🌐 KONDISI A: JIKA ROOM ID KOSONG -> BUKA MODE NORMAL (GLOBAL)
+    if (!id) {
+        currentMode = 'NORMAL';
         currentRoomId = null;
+        currentChampion = null;
 
-        if (countdownInterval) {
-            clearInterval(countdownInterval);
-            countdownInterval = null;
+        try {
+            // Jalankan musik
+            if (!bgMusic) {
+                bgMusic = new Audio('assets/music/bg-music.mp3');
+                bgMusic.loop = true;
+                bgMusic.volume = 0.4;
+            }
+            bgMusic.play().catch(()=>{});
+
+            // Sembunyikan countdown karena mode normal tidak ada batas waktu
+            const cdBox = document.getElementById('countdown-box');
+            if (cdBox) cdBox.style.display = 'none';
+
+            setupRealTimeListener();
+
+            switchScreen('leaderboard');
+            elements.displayRoom.textContent = '🌐 GLOBAL (NORMAL)';
+
+            addComment(`🌐 Membuka RANKING GLOBAL mode NORMAL`, 'info');
+            addComment(`👀 Menampilkan skor tertinggi seluruh pemain...`, 'info');
+
+        } catch (err) {
+            alert(err.message);
         }
-
-        const countdownBox = document.getElementById('countdown-box');
-        if (countdownBox) countdownBox.style.display = 'none';
-
-        if (!bgMusic) {
-            bgMusic = new Audio('assets/music/bg-music.mp3');
-            bgMusic.loop = true;
-            bgMusic.volume = 0.4;
-        }
-        bgMusic.play().catch(() => {});
-
-        setupRealTimeListener();
-        switchScreen('leaderboard');
-
-        elements.displayRoom.textContent = 'NORMAL';
-        addComment('📊 Leaderboard Mode Normal (Semua Pemain)', 'info');
-        return;
+        return; // Stop di sini, jangan lanjut ke proses turnamen
     }
 
-    // ====== MODE TURNAMEN (input ada isi) ======
+    // 🏆 KONDISI B: JIKA ROOM ID DIISI -> BUKA MODE TURNAMEN
     if (!/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(id)) {
         alert("Format Room ID salah. Contoh: ABCD-1234");
         return;
     }
 
-    currentMode = 'tournament';
     currentRoomId = id;
+    currentMode = 'TURNAMEN';
 
     try {
         await verifyRoomExists();
 
+        // Ambil expiresAt untuk countdown
         const roomRef = doc(db, "rooms", currentRoomId);
         const roomSnap = await getDoc(roomRef);
 
         if (roomSnap.exists() && roomSnap.data().expiresAt) {
             startCountdown(roomSnap.data().expiresAt);
+        } else {
+            const cdBox = document.getElementById('countdown-box');
+            if (cdBox) cdBox.style.display = 'none';
         }
 
-        const countdownBox = document.getElementById('countdown-box');
-        if (countdownBox) countdownBox.style.display = 'block';
-
+        // Jalankan musik
         if (!bgMusic) {
             bgMusic = new Audio('assets/music/bg-music.mp3');
             bgMusic.loop = true;
             bgMusic.volume = 0.4;
         }
-        bgMusic.play().catch(() => {});
+        bgMusic.play().catch(()=>{});
 
         setupRealTimeListener();
+
         switchScreen('leaderboard');
         elements.displayRoom.textContent = currentRoomId;
 
@@ -206,18 +213,17 @@ async function verifyRoomExists() {
 // REAL-TIME LISTENER
 // ========================================
 function setupRealTimeListener() {
-
     let q;
 
     if (currentMode === 'NORMAL') {
-        // 🌐 RANKING GLOBAL: semua pemain mode NORMAL
+        // 🌐 Query Mode Normal (Tanpa limit agar tidak memicu error import)
         q = query(
             collection(db, 'leaderboard'),
             where('gameMode', '==', 'NORMAL'),
             orderBy('score', 'desc')
         );
     } else {
-        // 🏆 TURNAMEN: filter room
+        // 🏆 Query Mode Turnamen berdasarkan Room ID
         q = query(
             collection(db, 'leaderboard'),
             where('roomId', '==', currentRoomId),
@@ -227,11 +233,10 @@ function setupRealTimeListener() {
     }
 
     unsubscribeSnapshot = onSnapshot(q, snap => {
-
         const rawData = [];
         snap.forEach(d => rawData.push({ id: d.id, ...d.data() }));
 
-        // Deduplikasi: hanya score tertinggi per nama
+        // Deduplikasi: Hanya ambil skor tertinggi per nama pemain
         const bestScoreMap = new Map();
         rawData.forEach(player => {
             const existing = bestScoreMap.get(player.name);
@@ -243,6 +248,7 @@ function setupRealTimeListener() {
         const newData = Array.from(bestScoreMap.values())
             .sort((a, b) => b.score - a.score);
 
+        // Deteksi Juara Baru
         if (newData.length > 0) {
             const newChamp = newData[0].name;
             if (currentChampion !== null && currentChampion !== newChamp) {
@@ -255,10 +261,15 @@ function setupRealTimeListener() {
         renderLeaderboard();
         updateStatistics();
 
-    }, (error) => {
-        // ✅ Error handler: supaya error Firestore TIDAK diam saja
-        console.error("Firestore error:", error);
-        alert("Gagal memuat data leaderboard:\n" + error.message);
+    }, error => {
+        // 🚨 MENANGKAP ERROR FIRESTORE (Sangat Penting!)
+        console.error("Firestore Error:", error);
+        
+        if (error.message.includes("index")) {
+            alert("Firestore membutuhkan INDEX tambahan untuk Mode Normal.\n\nSilakan buka Developer Console (F12) pada browser Anda, lalu klik LINK BIRU di dalam error merah untuk membuat index otomatis.");
+        } else {
+            alert("Gagal memuat data dari database:\n" + error.message);
+        }
     });
 }
 
